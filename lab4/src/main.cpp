@@ -151,7 +151,6 @@ int main(int argc, char** argv)
 
 	glutDisplayFunc(renderScene);
 	glutReshapeFunc(resizeScene);
-
 	glutIdleFunc(renderScene);
 
 	glutKeyboardFunc(processNormalKeys);

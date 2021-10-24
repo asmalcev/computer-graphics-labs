@@ -1,8 +1,15 @@
 #include <GL/glut.h>
+#include <stdio.h>
 
 #include "config.hpp"
 
 bool keys[256];
+
+float scale_coefficient = 1,
+      rotateX_angle     = 0,
+      rotateY_angle     = -90;
+
+GLUquadricObj * quadricObj;
 
 GLvoid resizeScene(GLsizei w, GLsizei h)
 {
@@ -15,45 +22,75 @@ GLvoid resizeScene(GLsizei w, GLsizei h)
 
 GLvoid renderScene(GLvoid)
 {
-	glClear(GL_COLOR_BUFFER_BIT);
-	glBegin(GL_POLYGON);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glVertex3f(0.5, 0.0, 0.5);
-	glVertex3f(0.5, 0.0, 0.0);
-	glVertex3f(0.0, 0.5, 0.0);
-	glVertex3f(0.0, 0.0, 0.5);
+	glPushMatrix();
+	glScalef(1 * scale_coefficient, 1 * scale_coefficient, 1 * scale_coefficient);
+	glRotatef(rotateX_angle, 0, 1, 0);
+	glRotatef(rotateY_angle, 1, 0, 0);
 
-	glEnd();
-	glFlush();
+	quadricObj = gluNewQuadric();
+		gluSphere(quadricObj, 0.2, 10, 10);
+		gluCylinder(quadricObj, 0.4, 0.1, 0.3, 10, 10);
+
+		glTranslatef(0, 0, -0.39);
+		gluCylinder(quadricObj, 0.05, 0.05, 0.2, 10, 1);
+		gluCylinder(quadricObj, 0.2, 0.05, 0.025, 10, 1);
+
+		glTranslatef(0, 0, -0.025);
+		gluCylinder(quadricObj, 0.2, 0.2, 0.025, 10, 1);
+	gluDeleteQuadric(quadricObj);
+
+	glPopMatrix();
+
+	glutSwapBuffers();
 }
 
 GLvoid processNormalKeys(unsigned char key, int x, int y) {
+	// printf("%d\n", key);
 	if (key == 27) {
 		exit(0);
+	} else if (key == 43 || key == 61) {
+		// upscale
+		scale_coefficient += scale_step;
+	} else if (key == 95 || key == 45) {
+		// downscale
+		scale_coefficient -= scale_step;
+	} else if (key == 119) {
+		// w
+		rotateY_angle += angle_step;
+	} else if (key == 115) {
+		// s
+		rotateY_angle -= angle_step;
+	} else if (key == 97) {
+		// a
+		rotateX_angle += angle_step;
+	} else if (key == 100) {
+		// d
+		rotateX_angle -= angle_step;
 	}
 }
-
-// GLvoid processSpecialKeys(int key, int x, int y) {
-// 	switch(key) {
-// 		default:
-// 			break;
-// 	}
-// }
 
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
+	glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
 	glutInitWindowSize(windowWidth, windowHeight);
 	glutInitWindowPosition(100, 100);
-	glutCreateWindow("work - 1");
+	glutCreateWindow("work - 5");
+
+	glEnable(GL_DEPTH_TEST);
+	glMatrixMode(GL_MODELVIEW);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	// glFrustum(-1, 1, -1, 1, 3, 8);
 
 	glutDisplayFunc(renderScene);
 	glutReshapeFunc(resizeScene);
-	// glutIdleFunc(renderScene);
+	glutIdleFunc(renderScene);
 
 	glutKeyboardFunc(processNormalKeys);
-	// glutSpecialFunc(processSpecialKeys);
 
 	glutMainLoop();
 
