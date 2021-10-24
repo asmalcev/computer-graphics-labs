@@ -9,6 +9,9 @@ float scale_coefficient = 1,
       rotateX_angle     = 0,
       rotateY_angle     = -90;
 
+float camera_x = 0,
+      camera_y = 0;
+
 GLUquadricObj * quadricObj;
 
 GLvoid resizeScene(GLsizei w, GLsizei h)
@@ -20,9 +23,16 @@ GLvoid resizeScene(GLsizei w, GLsizei h)
 	glViewport(0, 0, w, h);
 }
 
+GLvoid moveCamera() {
+	glTranslatef(camera_x, camera_y, 0);
+}
+
 GLvoid renderScene(GLvoid)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glLoadIdentity();
+	moveCamera();
 
 	glPushMatrix();
 	glScalef(1 * scale_coefficient, 1 * scale_coefficient, 1 * scale_coefficient);
@@ -47,7 +57,7 @@ GLvoid renderScene(GLvoid)
 }
 
 GLvoid processNormalKeys(unsigned char key, int x, int y) {
-	// printf("%d\n", key);
+	// printf("%d %c\n", key, key);
 	if (key == 27) {
 		exit(0);
 	} else if (key == 43 || key == 61) {
@@ -68,6 +78,18 @@ GLvoid processNormalKeys(unsigned char key, int x, int y) {
 	} else if (key == 100) {
 		// d
 		rotateX_angle -= angle_step;
+	} else if (key == 105) {
+		// i
+		camera_y += camera_step;
+	} else if (key == 106) {
+		// j
+		camera_x -= camera_step;
+	} else if (key == 107) {
+		// k
+		camera_y -= camera_step;
+	} else if (key == 108) {
+		// l
+		camera_x += camera_step;
 	}
 }
 
@@ -84,7 +106,7 @@ int main(int argc, char** argv)
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	// glFrustum(-1, 1, -1, 1, 3, 8);
+	glFrustum(-1, 1, -1, 1, 3, 8);
 
 	glutDisplayFunc(renderScene);
 	glutReshapeFunc(resizeScene);
