@@ -2,7 +2,6 @@
 #include <iostream>
 
 #include "config.hpp"
-#include "skybox.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../stb_image.h"
@@ -19,6 +18,13 @@
 
 
 
+constexpr float clearColorR = 5 / 255.0f;
+constexpr float clearColorG = 5 / 255.0f;
+constexpr float clearColorB = 5 / 255.0f;
+
+constexpr float BORDER = 3.0f;
+constexpr float LEFT = -BORDER, RIGHT = BORDER, DOWN = -BORDER, UP = BORDER;
+
 constexpr float scaleSpeed = 0.01;
 constexpr float angleSpeed = 5;
 
@@ -32,12 +38,6 @@ float timeCounter = 0;
 
 GLuint earthTexture;
 GLuint moonTexture;
-GLuint skyboxTextureR;
-GLuint skyboxTextureL;
-GLuint skyboxTextureT;
-GLuint skyboxTextureB;
-GLuint skyboxTextureF;
-GLuint skyboxTextureC;
 
 
 
@@ -80,16 +80,12 @@ int main(int argc, char** argv)
 
 	earthTexture = loadTexture("textures/earth.jpg");
 	moonTexture = loadTexture("textures/moon.jpg");
-	skyboxTextureR = loadTexture("textures/right.jpg");
-	skyboxTextureL = loadTexture("textures/left.jpg");
-	skyboxTextureT = loadTexture("textures/top.jpg");
-	skyboxTextureB = loadTexture("textures/bottom.jpg");
-	skyboxTextureF = loadTexture("textures/front.jpg");
-	skyboxTextureC = loadTexture("textures/back.jpg");
 
 
 
 	glTranslatef(0, 0, -5);
+
+	glClearColor(clearColorR, clearColorG, clearColorB, 1);
 
 	glutDisplayFunc(renderScene);
 	glutReshapeFunc(resizeScene);
@@ -170,60 +166,6 @@ GLvoid processNormalKeys(unsigned char key, int x, int y)
 	}
 }
 
-GLvoid renderSkybox(GLvoid) {
-	glEnableClientState(GL_VERTEX_ARRAY);
-	// glDepthMask(GL_FALSE);
-	// glDepthFunc(GL_LEQUAL);
-
-
-	glEnable(GL_TEXTURE_2D);
-
-	glVertexPointer(3, GL_FLOAT, 0, skybox);
-
-
-	glBegin(GL_POLYGON);
-	glBindTexture(GL_TEXTURE_2D, skyboxTextureR);
-		glTexCoord2f(1, 1);
-		glArrayElement(0);
-		glTexCoord2f(0, 1);
-		glArrayElement(1);
-		glTexCoord2f(0, 0);
-		glArrayElement(2);
-		glTexCoord2f(1, 0);
-		glArrayElement(3);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glEnd();
-
-		// glArrayElement(4);
-		// glArrayElement(5);
-		// glArrayElement(6);
-		// glArrayElement(7);
-
-		// glArrayElement(0);
-		// glArrayElement(1);
-		// glArrayElement(5);
-		// glArrayElement(4);
-
-		// glArrayElement(2);
-		// glArrayElement(3);
-		// glArrayElement(7);
-		// glArrayElement(6);
-
-		// glArrayElement(0);
-		// glArrayElement(3);
-		// glArrayElement(7);
-		// glArrayElement(4);
-
-		// glArrayElement(1);
-		// glArrayElement(2);
-		// glArrayElement(6);
-		// glArrayElement(5);
-
-	// glDepthFunc(GL_LESS);
-	// glDepthMask(GL_TRUE);
-	glDisableClientState(GL_VERTEX_ARRAY);
-}
-
 GLvoid renderScene(GLvoid)
 {
 	GLUquadricObj * quadricObj;
@@ -236,20 +178,18 @@ GLvoid renderScene(GLvoid)
 
 	moveCamera();
 
-	renderSkybox();
 
 
+	quadricObj = gluNewQuadric();
+		glBindTexture(GL_TEXTURE_2D, earthTexture);
 
-	// quadricObj = gluNewQuadric();
-	// 	glBindTexture(GL_TEXTURE_2D, earthTexture);
+		gluQuadricTexture(quadricObj, GL_TRUE);
+		gluQuadricDrawStyle(quadricObj, GLU_FILL);
 
-	// 	gluQuadricTexture(quadricObj, GL_TRUE);
-	// 	gluQuadricDrawStyle(quadricObj, GLU_FILL);
+		gluSphere(quadricObj, 4, 50, 50);
 
-	// 	gluSphere(quadricObj, 4, 50, 50);
-
-	// 	glBindTexture(GL_TEXTURE_2D, 0);
-	// gluDeleteQuadric(quadricObj);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	gluDeleteQuadric(quadricObj);
 
 	glPopMatrix();
 
