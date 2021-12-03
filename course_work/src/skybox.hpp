@@ -1,0 +1,17 @@
+#pragma once
+
+constexpr float BORDER = 3.0f;
+constexpr float LEFT = -BORDER, RIGHT = BORDER, DOWN = -BORDER, UP = BORDER;
+
+constexpr float TEX_BORDER = 3.0f;
+
+constexpr float skybox[8][3] = {
+	{ TEX_BORDER,  TEX_BORDER,  TEX_BORDER},
+	{-TEX_BORDER,  TEX_BORDER,  TEX_BORDER},
+	{-TEX_BORDER, -TEX_BORDER,  TEX_BORDER},
+	{ TEX_BORDER, -TEX_BORDER,  TEX_BORDER},
+	{ TEX_BORDER,  TEX_BORDER, -TEX_BORDER},
+	{-TEX_BORDER,  TEX_BORDER, -TEX_BORDER},
+	{-TEX_BORDER, -TEX_BORDER, -TEX_BORDER},
+	{ TEX_BORDER, -TEX_BORDER, -TEX_BORDER},
+};
