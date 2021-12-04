@@ -28,12 +28,20 @@ constexpr float LEFT = -BORDER, RIGHT = BORDER, DOWN = -BORDER, UP = BORDER;
 constexpr float scaleSpeed = 0.01;
 constexpr float angleSpeed = 5;
 
-float cameraScale = 1;
-float cameraAngleX = 155;
-float cameraAngleY = 0;
-float cameraAngleZ = 40;
+constexpr float ambient[] = {0.1, 0.1, 0.1, 0.2};
 
-float timeSpeed = 0.001;
+constexpr float earthColor[] = {1, 1, 1, 1};
+constexpr float moonColor[] = {1, 1, 1, 1};
+constexpr float ufoColor[] = {0.1, 0.1, 0.1, 1};
+
+constexpr float lightPos[] = {0, 2, 2, 0};
+
+float cameraScale = 0.7;
+float cameraAngleX = 0;
+float cameraAngleY = 0;
+float cameraAngleZ = 0;
+
+float timeSpeed = 1;
 float timeCounter = 0;
 
 GLuint earthTexture;
@@ -72,9 +80,19 @@ int main(int argc, char** argv)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glFrustum(LEFT, RIGHT, DOWN, UP, 1, 100);
+	glFrustum(LEFT, RIGHT, DOWN, UP, 1, 25);
+	// glOrtho(LEFT, RIGHT, DOWN, UP, 1, 25);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+
+
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_NORMALIZE);
+
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
 
 
 
@@ -160,14 +178,30 @@ GLvoid processNormalKeys(unsigned char key, int x, int y)
 			cameraScale += scaleSpeed;
 		}
 	} else if (key == 'k') {
-		if (cameraScale - scaleSpeed >= 0.2) {
+		if (cameraScale - scaleSpeed >= 0.1) {
 			cameraScale -= scaleSpeed;
 		}
+	} else if (key == '0') {
+		timeSpeed = 0;
+	} else if (key == '1') {
+		timeSpeed = 0.5;
+	} else if (key == '2') {
+		timeSpeed = 1;
+	} else if (key == '3') {
+		timeSpeed = 2;
+	} else if (key == '4') {
+		timeSpeed = 4;
+	} else if (key == '5') {
+		timeSpeed = 8;
+	} else if (key == '6') {
+		timeSpeed = 16;
 	}
 }
 
 GLvoid renderScene(GLvoid)
 {
+	timeCounter += timeSpeed;
+
 	GLUquadricObj * quadricObj;
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -180,16 +214,54 @@ GLvoid renderScene(GLvoid)
 
 
 
-	quadricObj = gluNewQuadric();
-		glBindTexture(GL_TEXTURE_2D, earthTexture);
+	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 
+	quadricObj = gluNewQuadric();
 		gluQuadricTexture(quadricObj, GL_TRUE);
 		gluQuadricDrawStyle(quadricObj, GLU_FILL);
 
-		gluSphere(quadricObj, 4, 50, 50);
+		glColor3f(1.0f, 1.0f, 1.0f);
+		glPushMatrix();
+			glRotatef(timeCounter / 15, 0, 0, 1);
+			glMaterialfv(GL_FRONT, GL_AMBIENT, earthColor);
+			glBindTexture(GL_TEXTURE_2D, earthTexture);
 
-		glBindTexture(GL_TEXTURE_2D, 0);
+				gluSphere(quadricObj, 4, 50, 50);
+
+			glBindTexture(GL_TEXTURE_2D, 0);
+		glPopMatrix();
+
+		glPushMatrix();
+			glRotatef(timeCounter / 35, 0, 1, 0);
+			glTranslatef(12, 0, 0);
+			glRotatef(timeCounter / 15, 0, 1, 0);
+			glMaterialfv(GL_FRONT, GL_AMBIENT, moonColor);
+			glBindTexture(GL_TEXTURE_2D, moonTexture);
+
+				gluSphere(quadricObj, 0.5, 25, 25);
+
+			glBindTexture(GL_TEXTURE_2D, 0);
+		glPopMatrix();
+
+		glPushMatrix();
+			glRotatef(timeCounter, 0.5, 0, 1);
+			glTranslatef(4.5, 0, 0);
+			glRotatef(-90, 0, 1, 0);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ufoColor);
+
+			glColor3f(0.7f, 0.7f, 0.7f);
+			gluSphere(quadricObj, 0.2, 10, 10);
+
+			glColor3f(0.25f, 0.25f, 0.25f);
+			gluCylinder(quadricObj, 0.1, 0.5, 0.1, 10, 10);
+			
+			glTranslatef(0, 0, 0.1);
+			gluCylinder(quadricObj, 0.5, 0.1, 0.1, 10, 10);
+		glPopMatrix();
+
 	gluDeleteQuadric(quadricObj);
+
+
 
 	glPopMatrix();
 
