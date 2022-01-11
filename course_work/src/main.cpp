@@ -1,5 +1,6 @@
 #include <GL/glut.h>
 #include <iostream>
+#include <cmath>
 
 #include "config.hpp"
 
@@ -33,6 +34,7 @@ constexpr float ambient[] = {0.1, 0.1, 0.1, 0.2};
 constexpr float earthColor[] = {1, 1, 1, 1};
 constexpr float moonColor[] = {1, 1, 1, 1};
 constexpr float ufoColor[] = {0.1, 0.1, 0.1, 1};
+constexpr float meteorsColor[] = {0.1, 0.1, 0.1, 1};
 
 constexpr float lightPos[] = {0, 2, 2, 0};
 
@@ -238,9 +240,18 @@ GLvoid renderScene(GLvoid)
 			glMaterialfv(GL_FRONT, GL_AMBIENT, moonColor);
 			glBindTexture(GL_TEXTURE_2D, moonTexture);
 
-				gluSphere(quadricObj, 0.5, 25, 25);
+				gluSphere(quadricObj, 0.7, 25, 25);
 
 			glBindTexture(GL_TEXTURE_2D, 0);
+
+			glPushMatrix();
+				glRotatef(timeCounter / 15, 1, 0, 1);
+				glTranslatef(2, 0, 0);
+				glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, meteorsColor);
+
+				glColor3f(0.5f, 0.5f, 0.5f);
+				gluSphere(quadricObj, 0.1, 10, 10);
+			glPopMatrix();
 		glPopMatrix();
 
 		glPushMatrix();
@@ -257,6 +268,15 @@ GLvoid renderScene(GLvoid)
 			
 			glTranslatef(0, 0, 0.1);
 			gluCylinder(quadricObj, 0.5, 0.1, 0.1, 10, 10);
+		glPopMatrix();
+
+		glPushMatrix();
+			glRotatef(timeCounter / 10, 1, 0, 1);
+			glTranslatef(7, 0, 0);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, meteorsColor);
+
+			glColor3f(0.5f, 0.5f, 0.5f);
+			gluSphere(quadricObj, 0.1, 10, 10);
 		glPopMatrix();
 
 	gluDeleteQuadric(quadricObj);
